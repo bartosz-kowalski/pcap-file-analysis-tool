@@ -21,13 +21,13 @@ int parse_ip_packet(packet_data *pkt){
         version = (pkt->ip_data[0] >> 4) & 0x0F;
     } else {
         
-        printf("Protocol different htan IP");
+        printf("Protokół różny od IP");
         return 0;
     }
 
     if (version != 4 && version != 6){
         
-        printf("Protocol different htan IP");
+        printf("Protokół różny od IP");
         return 0;
     }
 
@@ -35,7 +35,7 @@ int parse_ip_packet(packet_data *pkt){
     ip_info *info = (ip_info *)calloc(1, sizeof(ip_info));
     if (info == NULL) {
         
-        perror("Failed to allocate ip_info memory!");
+        perror("Nie udało się przydzielić pamięci dla informacji o IP!");
         return -1;
     }
 
@@ -50,7 +50,7 @@ int parse_ip_packet(packet_data *pkt){
         if (pkt->info_len < 20 || ((pkt->ip_data[0] >> 4) & 0x0F) != 4){
             
             free(info);
-            perror("Invalid IPV4 header!");
+            perror("Niepoprawny nagłówek IPv4!");
             return -1;
         }
 
@@ -85,7 +85,7 @@ int parse_ip_packet(packet_data *pkt){
         if (inet_ntop(AF_INET, &pkt->ip_data[12], info->src_ip, sizeof(info->src_ip)) == NULL || inet_ntop(AF_INET, &pkt->ip_data[16], info->dest_ip, sizeof(info->dest_ip)) == NULL){
             
             free(info);
-            perror("Error occured during IP th string conversion!");
+            perror("Błąd podczas konwersji adresu IP na tekst!");
             return -1;
         }
 
@@ -97,7 +97,7 @@ int parse_ip_packet(packet_data *pkt){
         if (pkt->info_len < 40 || ((pkt->ip_data[0] >> 4) & 0x0F) != 6) {
             
             free(info);
-            perror("Invalid IPv6 header");
+            perror("Niepoprawny nagłówek IPv6!");
             return -1;
         }
 
@@ -114,7 +114,7 @@ int parse_ip_packet(packet_data *pkt){
         if (inet_ntop(AF_INET6, &pkt->ip_data[8], info->src_ip, sizeof(info->src_ip)) == NULL || inet_ntop(AF_INET6, &pkt->ip_data[24], info->dest_ip, sizeof(info->dest_ip)) == NULL){
             
             free(info);
-            perror("Error occured during ip to string civnersion!");
+            perror("Błąd podczas konwersji adresu IP na tekst!");
             return -1;
         }
 
@@ -132,7 +132,7 @@ int parse_ip_packet(packet_data *pkt){
             if (transport_layer_len < 20){
                 
                 free(info);
-                perror("Error with TCP length!");
+                perror("Błąd długości protokołu TCP!");
                 return -1;
             }
 
@@ -147,7 +147,7 @@ int parse_ip_packet(packet_data *pkt){
             if (tcp_head_len < 20 || transport_layer_len < tcp_head_len){
 
                 free(info);
-                perror("TCP has some invalid length");
+                perror("Niepoprawna długość nagłówka TCP!");
                 return -1;
             }
 
@@ -160,7 +160,7 @@ int parse_ip_packet(packet_data *pkt){
         else if (info->protocol_type == 17){
             if (transport_layer_len < 8){
                 free(info);
-                perror("UDP packet too short!");
+                perror("Pakiet UDP jest zbyt krótki!");
                 return -1;
             }
 

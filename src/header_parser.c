@@ -28,7 +28,7 @@ int is_header_valid(FILE *pcap_file, header_data *data){
         data->endianness = true;
     }
     else{
-        perror("Invalid header! Magic number invalid! \n");
+        perror("Niepoprawny nagłówek! Niepoprawny numer magiczny! \n");
         return -1;
     }
 
@@ -49,7 +49,7 @@ int is_header_valid(FILE *pcap_file, header_data *data){
             continue;
         }
         else{
-            perror("Invalid version no.! \n");
+            perror("Niepoprawny numer wersji! \n");
             return -1;
         }
     }
@@ -88,7 +88,7 @@ int is_header_valid(FILE *pcap_file, header_data *data){
         data->FCS = 0;
     }
 
-    printf("Header of the file parsed correctly! \n");
+    printf("Prawidłowo przetworzono nagłówek pliku! \n");
 
     return 0;
 }
@@ -104,18 +104,18 @@ int check_packet_no(FILE *pcap_file, header_data *data){
         // reding the packet timestamp (eof is valid)
         elements_read = fread(&file_data, 4, 1, pcap_file);
         if (elements_read == 0 && feof(pcap_file)) {
-            printf("Reached the EOF! \n");
+            printf("Skończono odczyt pakietów (EOF)!\n");
             break; 
         }
         if (elements_read != 1) {
-            perror("Error occured during reading packet timestamp! \n");
+            perror("Błąd podczas odczytu znacznika czasu pakietu! \n");
             return -1;
         }
 
         // readin the rest of the packet header (eof indicates an error)
         elements_read = fread(&file_data, 4, 1, pcap_file);
         if (elements_read != 1) {
-            perror("Reached an unexpected EOF in the second timestamp! \n");
+            perror("Nieoczekiwany koniec pliku (EOF)! \n");
             return -1;
         }
 
@@ -125,25 +125,25 @@ int check_packet_no(FILE *pcap_file, header_data *data){
             captured_len = __builtin_bswap32(captured_len);
         }
         if (elements_read != 1) {
-            perror("Reached an unexpected EOF in the captured length! \n");
+            perror("Nieoczekiwany koniec pliku podczas odczytu przechwyconej długości! \n");
             return -1;
         }
 
         elements_read = fread(&file_data, 4, 1, pcap_file);
         if (elements_read != 1){
-            perror("Corrupted packet header (missing original packet length)! \n");
+            perror("Uszkodzony nagłówek pakietu (brak pierwotnej długości pakietu)! \n");
             return -1;
         }
 
         // Skipping packet data and checking EOF
         if (captured_len > 0) {
             if (fseek(pcap_file, captured_len - 1, SEEK_CUR) != 0){
-                perror("Failed to skip through the packet data! \n");
+                perror("Nie udało się pominąć danych pakietu! \n");
                 return -1;
             }
             uint8_t buf;
             if (fread(&buf, 1, 1, pcap_file) != 1){
-                perror("Unexpected EOF in the packet data! \n");
+                perror("Nieoczekiwany koniec pliku w danych pakietu! \n");
                 return -1;
             }
         }
@@ -155,7 +155,7 @@ int check_packet_no(FILE *pcap_file, header_data *data){
 
     // returning to the start of the file
     if (fseek(pcap_file, 0L, SEEK_SET) != 0){
-        perror("Failed to return to the start of the file! \n");
+        perror("Nie udało się wrócić na początek pliku! \n");
     }
 
     // skipping the header

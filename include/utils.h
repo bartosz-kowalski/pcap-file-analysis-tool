@@ -46,13 +46,42 @@ typedef struct {
     bool has_rst;
     uint32_t max_seq;
     uint32_t retransmissions;
+    uint32_t out_of_order;
+    uint32_t last_seq;
+    uint32_t payload_packets;
 
     uint64_t bytes_up;
     uint64_t bytes_down;
 } flow_t;
 
+typedef struct {
+    size_t host_count;
+    size_t port_count;
+    size_t flow_count;
+    uint32_t established;
+    uint32_t closed_fin;
+    uint32_t aborted_rst;
+    uint32_t failed_syn;
+    uint32_t retransmissions;
+    uint32_t out_of_order;
+    uint32_t frag_packets;
+    uint32_t dns_packets;
+    uint32_t syn_without_synack;
+    uint32_t zero_window_packets;
+    double avg_iat;
+    double avg_packet_size;
+    uint32_t min_packet_size;
+    uint32_t max_packet_size;
+    uint32_t median_packet_size;
+    uint32_t p95_packet_size;
+} traffic_summary_t;
+
 double get_packet_time(const packet_data *, bool);
 
-void analyze_traffic(const packet_data *, const header_data *);
+void analyze_traffic(const packet_data *packets, const header_data *hdr,
+                     host_stat_t **hosts, size_t *host_count,
+                     port_stat_t **ports, size_t *port_count,
+                     flow_t **flows, size_t *flow_count,
+                     traffic_summary_t *summary);
 
 #endif

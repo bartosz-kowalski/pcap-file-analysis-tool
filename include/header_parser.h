@@ -17,9 +17,9 @@
 #define CHECK_READ_HEADER(bytes_read, bytes_expected, file)\
     if ((bytes_read) < (size_t)(bytes_expected)) { \
         if (feof(file)) { \
-            printf("Reached EOF! \n"); \
+            printf("Osiągnięto koniec pliku (EOF)! \n"); \
         } else if (ferror(file)) { \
-            perror("An error occurred while reading the data"); \
+            perror("Wystąpił błąd podczas odczytu danych"); \
         } \
         return -1; \
     } \
