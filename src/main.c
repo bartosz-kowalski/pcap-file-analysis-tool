@@ -3,11 +3,37 @@
 #include "ip_parser.h"
 #include "plotting.h"
 #include "utils.h"
+#include "report.h"
 
 #include <string.h>
 #include <stdlib.h>
+#include <strings.h>
 
 #define NUM_BINS (200)
+
+static char *make_report_filename(const char *requested, const char *pcap_path) {
+    const char *source = requested != NULL ? requested : pcap_path;
+    size_t length = strlen(source);
+    bool has_pdf_extension = requested != NULL &&
+        length >= 4 && strcasecmp(source + length - 4, ".pdf") == 0;
+
+    if (requested == NULL && length >= 5 &&
+        strcasecmp(source + length - 5, ".pcap") == 0) {
+        length -= 5;
+    }
+
+    size_t extension_length = has_pdf_extension ? 0 : 4;
+    char *filename = malloc(length + extension_length + 1);
+    if (filename == NULL) return NULL;
+
+    memcpy(filename, source, length);
+    if (extension_length > 0) {
+        memcpy(filename + length, ".pdf", 5);
+    } else {
+        filename[length] = '\0';
+    }
+    return filename;
+}
 
 int main(int argc, char **argv){
 
@@ -35,11 +61,13 @@ int main(int argc, char **argv){
         pcap_filename = (char*)malloc(pcap_filename_len);
         memcpy(pcap_filename, argv[1], pcap_filename_len);
 
-        if(argc == 3){
-            size_t output_filename_len = strlen(argv[2]) + 1;
-            output_filename = (char*)malloc(output_filename_len);
-            memcpy(output_filename, argv[2], output_filename_len);
-        }
+    }
+
+    output_filename = make_report_filename(argc == 3 ? argv[2] : NULL, pcap_filename);
+    if (output_filename == NULL) {
+        fprintf(stderr, "Nie udało się utworzyć nazwy pliku raportu.\n");
+        free(pcap_filename);
+        return -1;
     }
 
     FILE *pcap_file = NULL;
@@ -220,15 +248,30 @@ int main(int argc, char **argv){
         other_throughput[b] = (uint64_t)((double)other_throughput[b] / bin_width) / 1024.0;
     }
 
-    generate_protocol_type_chart("images/tcp_v_udp.png", tcp_packet_no, udp_packet_no, other_packet_no);
-    generate_throughput_chart("images/throughput.png", bin_times, throughput, num_bins);
-    generate_protocol_throughput_chart("images/protokoly_throughput.png", bin_times,
+    const char *images[] = {
+        "images/tcp_v_udp.png",
+        "images/throughput.png",
+        "images/protokoly_throughput.png",
+        "images/top_hosts.png",
+        "images/histogram.png",
+    };
+    generate_protocol_type_chart(images[0], tcp_packet_no, udp_packet_no, other_packet_no);
+    generate_throughput_chart(images[1], bin_times, throughput, num_bins);
+    generate_protocol_throughput_chart(images[2], bin_times,
                                        tcp_throughput, udp_throughput,
                                        other_throughput, num_bins);
     if (host_count > 0) {
-        generate_top_hosts_chart("images/top_hosts.png", hosts, host_count);
+        generate_top_hosts_chart(images[3], hosts, host_count);
     }
-    generate_size_chart("images/histogram.png", bytes1_no, bytes2_no, bytes3_no, bytes4_no, bytes5_no, bytes6_no);
+    generate_size_chart(images[4], bytes1_no, bytes2_no, bytes3_no, bytes4_no, bytes5_no, bytes6_no);
+
+    int report_result = generate_report(output_filename,
+                                        pcap_packets, &pcap_header_data,
+                                        hosts, host_count,
+                                        ports, port_count,
+                                        flows, flow_count,
+                                        images, sizeof(images) / sizeof(images[0]),
+                                        &traffic_summary);
 
     // Clean up
     fclose(pcap_file);
@@ -250,5 +293,5 @@ int main(int argc, char **argv){
     free(ports);
     free(flows);
 
-    return 0;
+    return report_result == 0 ? 0 : -1;
 }

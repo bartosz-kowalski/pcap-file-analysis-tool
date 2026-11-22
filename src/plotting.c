@@ -9,7 +9,7 @@ int generate_throughput_chart(const char *output_png, const double *times, const
         return -1;
     }
 
-    fprintf(gp, "set terminal pngcairo size 900,500 enhanced font 'Sans,11'\n");
+    fprintf(gp, "set terminal pngcairo size 1000,620 enhanced font 'Sans,13'\n");
     fprintf(gp, "set output '%s'\n", output_png);
     fprintf(gp, "set title 'Przepustowość ruchu sieciowego w czasie'\n");
     fprintf(gp, "set xlabel 'Czas od początku przechwytywania [s]'\n");
@@ -35,10 +35,13 @@ int generate_protocol_type_chart(const char *output_png, uint32_t tcp_pkts, uint
     }
 
     uint64_t all_packs = tcp_pkts + udp_pkts + other_pkts;
+    double tcp_percent = all_packs > 0 ? (double)tcp_pkts / all_packs * 100 : 0;
+    double udp_percent = all_packs > 0 ? (double)udp_pkts / all_packs * 100 : 0;
+    double other_percent = all_packs > 0 ? (double)other_pkts / all_packs * 100 : 0;
 
-    fprintf(gp, "set terminal pngcairo size 700,500 enhanced font 'Sans,11'\n");
+    fprintf(gp, "set terminal pngcairo size 1000,620 enhanced font 'Sans,13'\n");
     fprintf(gp, "set output '%s'\n", output_png);
-    fprintf(gp, "set title \"Analiza ruchu sieciowego\\n{/*0.8 TCP: %.1f%%, UDP: %.1f%%, Inne: %.1f%%}\"\n", (double)tcp_pkts/all_packs*100, (double)udp_pkts/all_packs*100, (double)other_pkts/all_packs*100);
+    fprintf(gp, "set title \"Analiza ruchu sieciowego\\n{/*0.8 TCP: %.1f%%, UDP: %.1f%%, Inne: %.1f%%}\"\n", tcp_percent, udp_percent, other_percent);
     fprintf(gp, "set ylabel 'Liczba pakietów'\n");
     fprintf(gp, "set style fill solid 0.8 border -1\n");
     fprintf(gp, "set boxwidth 0.5\n");
@@ -64,7 +67,7 @@ int generate_size_chart(const char* output_png, uint32_t sz1, uint32_t sz2, uint
         return -1;
     }
 
-    fprintf(gp, "set terminal pngcairo size 700,500 enhanced font 'Sans,11'\n");
+    fprintf(gp, "set terminal pngcairo size 1000,620 enhanced font 'Sans,13'\n");
     fprintf(gp, "set output '%s'\n", output_png);
     fprintf(gp, "set title 'Histogram rozmiarów pakietów'\n");
     fprintf(gp, "set ylabel 'Liczba pakietów'\n");
@@ -98,7 +101,7 @@ int generate_protocol_throughput_chart(const char *output_png, const double *tim
         return -1;
     }
 
-    fprintf(gp, "set terminal pngcairo size 900,500 enhanced font 'Sans,11'\n");
+    fprintf(gp, "set terminal pngcairo size 1000,620 enhanced font 'Sans,13'\n");
     fprintf(gp, "set output '%s'\n", output_png);
     fprintf(gp, "set title 'Przepustowość według protokołu'\n");
     fprintf(gp, "set xlabel 'Czas od początku przechwytywania [s]'\n");
@@ -131,7 +134,7 @@ int generate_top_hosts_chart(const char *output_png, const host_stat_t *hosts, s
 
     size_t limit = count < 10 ? count : 10;
 
-    fprintf(gp, "set terminal pngcairo size 900,500 enhanced font 'Sans,11'\n");
+    fprintf(gp, "set terminal pngcairo size 1000,620 enhanced font 'Sans,13'\n");
     fprintf(gp, "set output '%s'\n", output_png);
     fprintf(gp, "set title 'Najaktywniejsze hosty'\n");
     fprintf(gp, "set ylabel 'Przesłane bajty'\n");
