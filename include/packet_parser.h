@@ -48,6 +48,8 @@ typedef struct packet_data{
 
 int strip_ethernet_header(packet_data *, const header_data*);
 
+int strip_80211_header(packet_data*, const header_data*);
+
 int parse_packets(FILE*, packet_data*, header_data*);
 
 #endif
